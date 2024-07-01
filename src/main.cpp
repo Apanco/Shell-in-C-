@@ -44,7 +44,7 @@ void start(){
 
 string getCommand(){
 	string input;
-	cout << "\n$ ";
+	cout << "$ ";
 	getline(cin, input);
 	return input;
 }
