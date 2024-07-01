@@ -7,7 +7,10 @@
 #include <cstdlib> //Funciones estandar de C++ como getenv()
 #include <cstring> //Proporciona funciones de manipulacion de cadenas como strdup()
 #include <cerrno>	//Proporciona errno
+#include <filesystem>
 
+
+namespace fs = std::filesystem;
 using namespace std;
 
 void start();
@@ -56,7 +59,7 @@ void start(){
 		if(isBuiltinCommand != -1){
 			cout<<code<<" is a shell builtin"<<endl;
 		}
-		if(isBuiltinCommand == -1 && direction != "xd"){
+		if(isBuiltinCommand == -1 && direction != ""){
 			cout<<code<<" is "<<direction<<endl;
 		}
 		else{
@@ -123,17 +126,24 @@ int busquedaLineal(vector <string> array, string toFind){
 	return position;
 }
 string getEnvVairiable(string envVarName){
-	char* envValue = nullptr; //Puntero que contendra el valor de la variable de entorno, definida en null
-	size_t len = 0; // Entero no negativo grande
-	string result;
 	
-	envValue = getenv(envVarName.c_str()); //c_str string -> *char
-	if(envValue == nullptr){
-		return "xd";
-	}
-	
-	char* token = strtok(envValue, ";");
-	
-	result = token;
-	return result;
+	// Obtener el valor de la variable de entorno PATH
+    std::string path_env = std::getenv("PATH");
+
+    // Crear un stringstream para dividir path_env por ':'
+    std::istringstream ss(path_env);
+    std::string path;
+
+    // Recorrer cada directorio en PATH
+    while (std::getline(ss, path, ':')) {
+        // Construir la ruta absoluta del comando
+        fs::path abs_path = fs::path(path) / envVarName;
+
+        // Verificar si el archivo existe
+        if (fs::exists(abs_path)) {
+            return abs_path.string(); // Devolver la ruta absoluta como string
+        }
+    }
+
+    return ""; 
 }
