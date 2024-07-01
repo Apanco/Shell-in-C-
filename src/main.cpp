@@ -1,13 +1,23 @@
 #include <iostream>
+using namespace std;
+
+void start();
+
 int main() {
-  // Flush after every std::cout / std:cerr
-  std::cout << std::unitbuf;
-  std::cerr << std::unitbuf;
-  // Uncomment this block to pass the first stage
-  std::cout << "$ ";
-  
-  std::string input;
-  std::getline(std::cin, input);
-  std::cout << input << ": command not found\n";
+	// Flush after every std::cout / std:cerr
+	cout << unitbuf; // Asegurar que cout no esté almacenado en búfer
+	cerr << unitbuf; // Asegurar que cerr no esté almacenado en búfer
+	// Uncomment this block to pass the first stage
+	
+	while(true){
+		start();
+	}
 }
 
+void start(){
+	cout << "$ ";
+	  
+	string input;
+	getline(cin, input);
+	cout << input << ": command not found\n";
+}
