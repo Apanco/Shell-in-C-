@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -9,6 +10,7 @@ string getCommand();
 string cleanCommand( string& str );
 string getCode(string& str);
 string getEcho(string echo, string command);
+int busquedaLineal(vector <string> array, string toFind);
 //utils
 
 int stringToInt(string str);
@@ -24,12 +26,14 @@ int main() {
 }
 
 void start(){
+	
+	string builtinCommandsPrimitive[] = {"exit", "echo", "type"};
+	vector <string> builtinCommands(builtinCommandsPrimitive, builtinCommandsPrimitive + sizeof(builtinCommandsPrimitive) / sizeof(std::string));
 	string input, command, code;
 	input = getCommand();
-	
 	command = cleanCommand(input);
 	code = getCode(input);
-	//Comandos identificados
+	//builtin commands
 	
 	if(command == "exit"){
 		int codeInt = stringToInt(code);
@@ -39,9 +43,19 @@ void start(){
 		string str = getEcho(input, command);
 		cout<<str<<endl;
 	}
+	if(command == "type"){
+		int isBuiltinCommand = busquedaLineal(builtinCommands, code);
+		if(isBuiltinCommand != -1){
+			cout<<code<<" is a shell builtin"<<endl;
+		}
+		else{
+			cout << code << ": not found"<<endl;
+		}
+	}
+	
 	//Comando no identificado
 	else{
-		cout << input << ": command not found\n";
+		cout << input << ": command not found"<<endl;
 	}
 }
 
@@ -84,4 +98,14 @@ int stringToInt(string numString){
 	int numInt;
 	iss >> numInt;
     return numInt;
+}
+int busquedaLineal(vector <string> array, string toFind){
+	int position = -1;
+	int length = array.size();
+	for(int i = 0; i < length; i++){
+		if(array[i] == toFind){
+			position = i;
+		}
+	}
+	return position;
 }
