@@ -26,7 +26,7 @@ int main() {
 }
 
 void start(){
-	
+	bool exist = false;
 	string builtinCommandsPrimitive[] = {"exit", "echo", "type"};
 	vector <string> builtinCommands(builtinCommandsPrimitive, builtinCommandsPrimitive + sizeof(builtinCommandsPrimitive) / sizeof(std::string));
 	string input, command, code;
@@ -34,16 +34,18 @@ void start(){
 	command = cleanCommand(input);
 	code = getCode(input);
 	//builtin commands
-	
 	if(command == "exit"){
+		exist = true;
 		int codeInt = stringToInt(code);
 		exit(codeInt);
 	}
 	if(command == "echo"){
+		exist = true;
 		string str = getEcho(input, command);
 		cout<<str<<endl;
 	}
 	if(command == "type"){
+		exist = true;
 		int isBuiltinCommand = busquedaLineal(builtinCommands, code);
 		if(isBuiltinCommand != -1){
 			cout<<code<<" is a shell builtin"<<endl;
@@ -54,8 +56,8 @@ void start(){
 	}
 	
 	//Comando no identificado
-	else{
-		cout << input << ": command not found"<<endl;
+	else if(!exist){
+		cout << command << ": command not found"<<endl;
 	}
 }
 
