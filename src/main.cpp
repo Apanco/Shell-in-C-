@@ -2,6 +2,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <stdlib.h>
+#include <cstdlib>
+#include <cstdlib> //Funciones estandar de C++ como getenv()
+#include <cstring> //Proporciona funciones de manipulacion de cadenas como strdup()
+#include <cerrno>	//Proporciona errno
 
 using namespace std;
 
@@ -12,7 +17,7 @@ string getCode(string& str);
 string getEcho(string echo, string command);
 int busquedaLineal(vector <string> array, string toFind);
 //utils
-
+string getEnvVairiable(string envVarName);
 int stringToInt(string str);
 
 int main() {
@@ -47,8 +52,12 @@ void start(){
 	if(command == "type"){
 		exist = true;
 		int isBuiltinCommand = busquedaLineal(builtinCommands, code);
+		string direction = getEnvVairiable(code);
 		if(isBuiltinCommand != -1){
 			cout<<code<<" is a shell builtin"<<endl;
+		}
+		if(isBuiltinCommand == -1 && direction != "xd"){
+			cout<<code<<" is "<<direction<<endl;
 		}
 		else{
 			cout << code << ": not found"<<endl;
@@ -95,6 +104,8 @@ string getEcho(string echo, string command){
 }
 
 // Utils
+
+
 int stringToInt(string numString){
 	istringstream iss(numString);
 	int numInt;
@@ -110,4 +121,19 @@ int busquedaLineal(vector <string> array, string toFind){
 		}
 	}
 	return position;
+}
+string getEnvVairiable(string envVarName){
+	char* envValue = nullptr; //Puntero que contendra el valor de la variable de entorno, definida en null
+	size_t len = 0; // Entero no negativo grande
+	string result;
+	
+	envValue = getenv(envVarName.c_str()); //c_str string -> *char
+	if(envValue == nullptr){
+		return "xd";
+	}
+	
+	char* token = strtok(envValue, ";");
+	
+	result = token;
+	return result;
 }
