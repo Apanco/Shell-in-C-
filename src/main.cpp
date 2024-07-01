@@ -1,25 +1,13 @@
 #include <iostream>
-using namespace std;
-
-string getComand();
-
 int main() {
-	
-	string notFound = "command not found";
-	
-	string input;
-	// Flush after every std::cout / std:cerr
-	std::cout << std::unitbuf;
-	std::cerr << std::unitbuf;
-	
-	// Uncomment this block to pass the first stage
-	input = getComand();
-	cout<<"\n"<<input<<": "<<notFound;
+  // Flush after every std::cout / std:cerr
+  std::cout << std::unitbuf;
+  std::cerr << std::unitbuf;
+  // Uncomment this block to pass the first stage
+  std::cout << "$ ";
+  
+  std::string input;
+  std::getline(std::cin, input);
+  std::cout << input << ": command not found\n";
 }
-string getComand(){
-	string input;
-	cout<<"$ ";cin>>input;
-	return input;
-}
-
 
