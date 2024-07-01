@@ -8,7 +8,7 @@ void start();
 string getCommand();
 string cleanCommand( string& str );
 string getCode(string& str);
-
+string getEcho(string echo, string command);
 //utils
 
 int stringToInt(string str);
@@ -36,7 +36,8 @@ void start(){
 		exit(codeInt);
 	}
 	if(command == "echo"){
-		cout<<code<<endl;
+		string str = getEcho(input, command);
+		cout<<str<<endl;
 	}
 	//Comando no identificado
 	else{
@@ -65,7 +66,17 @@ string getCode(string& str){
 	return secondWord;
 }
 
-
+string getEcho(string echo, string command){
+	string result = echo;
+	int pos = result.find(command);
+	if(pos != string::npos){
+		result.erase(pos,command.length());
+		if(pos < result.length() && result[pos] == ' ' ){
+			result.erase(pos, 1);
+		}
+	}
+	return result;
+}
 
 // Utils
 int stringToInt(string numString){
