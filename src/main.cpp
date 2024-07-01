@@ -62,7 +62,7 @@ void start(){
 		if(isBuiltinCommand == -1 && direction != ""){
 			cout<<code<<" is "<<direction<<endl;
 		}
-		else{
+		if(isBuiltinCommand == -1 && direction == ""){
 			cout << code << ": not found"<<endl;
 		}
 	}
