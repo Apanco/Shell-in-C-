@@ -35,7 +35,9 @@ void start(){
 		int codeInt = stringToInt(code);
 		exit(codeInt);
 	}
-	
+	if(command == "echo"){
+		cout<<code<<endl;
+	}
 	//Comando no identificado
 	else{
 		cout << input << ": command not found\n";
