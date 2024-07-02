@@ -9,7 +9,7 @@
 #include <memory>
 #include <cstdio>
 #include <sstream>
-
+#include <fstream> 
 namespace fs = std::filesystem;
 using namespace std;
 
@@ -20,9 +20,11 @@ string getCode(string& str);
 string getEcho(string echo, string command);
 int busquedaLineal(vector <string> array, string toFind);
 string exec(const string cmd, string input);
+string handle_type_command(vector<string> arguments);
 //utils
 string getEnvVairiable(string envVarName);
 int stringToInt(string str);
+vector <string> splitString(string input, char delimiter);
 
 int main() {
 	// Flush after every std::cout / std:cerr
@@ -36,12 +38,14 @@ int main() {
 
 void start(){
 	bool exist = false;
-	string builtinCommandsPrimitive[] = {"exit", "echo", "type"};
-	vector <string> builtinCommands(builtinCommandsPrimitive, builtinCommandsPrimitive + sizeof(builtinCommandsPrimitive) / sizeof(std::string));
+	
 	string input, command, code;
 	input = getCommand();
 	command = cleanCommand(input);
 	code = getCode(input);
+	
+	vector <string> arguments = splitString(input, ' ');
+	
 	//builtin commands
 	if(command == "exit"){
 		exist = true;
@@ -55,17 +59,8 @@ void start(){
 	}
 	if(command == "type"){
 		exist = true;
-		int isBuiltinCommand = busquedaLineal(builtinCommands, code);
-		string direction = getEnvVairiable(code);
-		if(isBuiltinCommand != -1){
-			cout<<code<<" is a shell builtin"<<endl;
-		}
-		if(isBuiltinCommand == -1 && direction != ""){
-			cout<<code<<" is "<<direction<<endl;
-		}
-		if(isBuiltinCommand == -1 && direction == ""){
-			cout << code << ": not found"<<endl;
-		}
+		string response = handle_type_command(arguments);
+		cout<<response<<endl;
 	}
 	else{
 		string direction = getEnvVairiable(command);
@@ -126,15 +121,14 @@ string getEcho(string echo, string command){
 vector <string> splitString(string input, char delimiter = ' '){
 	vector <string> result;
 	
+	stringstream ss(input);
+	string token;
 	string temporal = "";
-	for(int i = 0; i < input.length(); i++){
-		if(input[i] == delimiter){
-			result.push_back(temporal);
-			temporal="";
-		} else{
-			temporal += tolower(input[i]);
-		}
+
+	while(getline(ss, token, delimiter)){
+		result.push_back(token);
 	}
+
 	return result;
 }
 // Buscar un archivo en un directorio
@@ -193,6 +187,36 @@ string getEnvVairiable(string envVarName){
     }
     //Retornar direccion
     return result; 
+}
+
+string handle_type_command(vector<string> arguments){
+	
+	string response = arguments[1]+": not found";
+	string builtinCommandsPrimitive[] = {"exit", "echo", "type"};
+	vector <string> builtinCommands(builtinCommandsPrimitive, builtinCommandsPrimitive + sizeof(builtinCommandsPrimitive) / sizeof(std::string));
+	
+	//Analizar si es un builtin command
+	for(int i = 0; i < builtinCommands.size();i++){
+		if(arguments[1] == builtinCommands[i]){
+			response = arguments[1]+" is a shell builtin";
+			return response;
+		}
+	}
+	//Buscar comando en el path
+	string filepath;
+	// Obtener el valor de la variable de entorno PATH
+    string path_env = getenv("PATH");
+	//Dividir el PATH por ; y guardar las direcciones en un vector
+    vector <string> paths = splitString(path_env, ';');
+	for(int i = 0; i < paths.size();i++){
+		filepath = paths[i]+"/"+arguments[1];
+		ifstream file(filepath);
+		if(file.good()){
+			response = arguments[1]+" is "+filepath;
+			return response;
+		}
+	}
+	return response;
 }
 
 
