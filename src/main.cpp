@@ -206,16 +206,20 @@ string handle_type_command(vector<string> arguments){
 	string filepath;
 	// Obtener el valor de la variable de entorno PATH
     string path_env = getenv("PATH");
-	//Dividir el PATH por ; y guardar las direcciones en un vector
-    vector <string> paths = splitString(path_env, ';');
-	for(int i = 0; i < paths.size();i++){
-		filepath = paths[i]+"/"+arguments[1];
-		ifstream file(filepath);
-		if(file.good()){
-			response = arguments[1]+" is "+filepath;
+	stringstream ss(path_env);
+	string path;
+	while(!ss.eof()){
+		getline(ss,path,':');
+		string abs_path = path + '/' + arguments[1];
+		if(filesystem::exists(abs_path)){
+			response = arguments[1]+" is "+abs_path;
 			return response;
 		}
 	}
+	
+	
+	
+	
 	return response;
 }
 
