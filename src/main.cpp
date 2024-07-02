@@ -79,7 +79,7 @@ void start(){
 	if(0 == input.find("my_exe") ){
 		exist = true;
 		system(input.c_str());
-		cout<<endl;
+		
 	}
 	//Comando no identificado
 	if(!exist){
