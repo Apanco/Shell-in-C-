@@ -206,7 +206,7 @@ string getEnvVairiable(string envVarName){
 string handle_type_command(vector<string> arguments){
 	
 	string response = arguments[1]+": not found";
-	string builtinCommandsPrimitive[] = {"exit", "echo", "type"};
+	string builtinCommandsPrimitive[] = {"exit", "echo", "type", "pwd"};
 	vector <string> builtinCommands(builtinCommandsPrimitive, builtinCommandsPrimitive + sizeof(builtinCommandsPrimitive) / sizeof(std::string));
 	
 	//Analizar si es un builtin command
