@@ -142,7 +142,7 @@ bool searchFile(string directory, string fileName){
         }
         //Itera los archivos
         for (const auto& entry : fs::directory_iterator(directory)) {
-            if (entry.path().filename() == fileName+".exe") {
+            if (entry.path().filename() == fileName) {
                 return true;
             }
         }
