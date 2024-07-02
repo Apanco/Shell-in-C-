@@ -1,14 +1,14 @@
 #include <iostream>
-#include <sstream>
-#include <string>
 #include <vector>
-#include <stdlib.h>
-#include <cstdlib>
-#include <cstdlib> //Funciones estandar de C++ como getenv()
-#include <cstring> //Proporciona funciones de manipulacion de cadenas como strdup()
-#include <cerrno>	//Proporciona errno
+#include <unordered_set>
 #include <filesystem>
-
+#include <string>
+#include <cstdlib>
+#include <stdexcept>
+#include <array>
+#include <memory>
+#include <cstdio>
+#include <sstream>
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -19,6 +19,7 @@ string cleanCommand( string& str );
 string getCode(string& str);
 string getEcho(string echo, string command);
 int busquedaLineal(vector <string> array, string toFind);
+string exec(const string cmd, string input);
 //utils
 string getEnvVairiable(string envVarName);
 int stringToInt(string str);
@@ -66,9 +67,17 @@ void start(){
 			cout << code << ": not found"<<endl;
 		}
 	}
-	
+	else{
+		string direction = getEnvVairiable(command);
+		if(direction != ""){
+			exist = true;
+			string cmdPath = direction + "/" + command;
+			string result = exec(cmdPath, input);
+			cout<<result;
+		}
+	}
 	//Comando no identificado
-	else if(!exist){
+	if(!exist){
 		cout << command << ": command not found"<<endl;
 	}
 }
@@ -108,6 +117,41 @@ string getEcho(string echo, string command){
 
 // Utils
 
+// Dividir string y retornar en vector
+vector <string> splitString(string input, char delimiter = ' '){
+	vector <string> result;
+	
+	string temporal = "";
+	for(int i = 0; i < input.length(); i++){
+		if(input[i] == delimiter){
+			result.push_back(temporal);
+			temporal="";
+		} else{
+			temporal += tolower(input[i]);
+		}
+	}
+	return result;
+}
+// Buscar un archivo en un directorio
+bool searchFile(string directory, string fileName){
+	try {
+		//Analiza que exista
+        if (!fs::exists(directory)) {
+            //std::cerr << "Directorio no existe: " << directory << std::endl;
+            return false;
+        }
+        //Itera los archivos
+        for (const auto& entry : fs::directory_iterator(directory)) {
+            if (entry.path().filename() == fileName) {
+                return true;
+            }
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    }
+    return false;
+}
+
 
 int stringToInt(string numString){
 	istringstream iss(numString);
@@ -126,24 +170,64 @@ int busquedaLineal(vector <string> array, string toFind){
 	return position;
 }
 string getEnvVairiable(string envVarName){
-	
+	//Almacenar direccion
+	string result = "";
 	// Obtener el valor de la variable de entorno PATH
-    std::string path_env = std::getenv("PATH");
-
-    // Crear un stringstream para dividir path_env por ':'
-    std::istringstream ss(path_env);
-    std::string path;
-
-    // Recorrer cada directorio en PATH
-    while (std::getline(ss, path, ':')) {
-        // Construir la ruta absoluta del comando
-        fs::path abs_path = fs::path(path) / envVarName;
-
-        // Verificar si el archivo existe
-        if (fs::exists(abs_path)) {
-            return abs_path.string(); // Devolver la ruta absoluta como string
+    string path_env = getenv("PATH");
+	
+	//Dividir el PATH por ; y guardar las direcciones en un vector
+    vector <string> paths = splitString(path_env, ';');
+	
+    for(int i = 0; i < paths.size(); i++){
+    	//cout<<paths[i]<<" -> "<<envVarName<<endl;
+        if(searchFile(paths[i], envVarName)) {
+        
+            result = paths[i];
+            return result;
         }
     }
+    //Retornar direccion
+    return result; 
+}
 
-    return ""; 
+string execEnvVariable(string envVarName){
+	//Almacenar direccion
+	string result = "";
+	// Obtener el valor de la variable de entorno PATH
+    string path_env = getenv("PATH");
+	//Direccion con ejecucion
+	string cmdPath;
+	
+	//Dividir el PATH por ; y guardar las direcciones en un vector
+    vector <string> paths = splitString(path_env, ';');
+	
+	bool found = false;
+	
+    for(int i = 0; i < paths.size(); i++){
+    	//cout<<paths[i]<<" -> "<<envVarName<<endl;
+        if(searchFile(paths[i], envVarName)) {
+            cmdPath = paths[i]+"/"+envVarName;
+            found = true;
+            break;
+        }
+    }
+    if(found){
+    	
+	}
+}
+
+//Ejecutar comando externo
+string exec(const string cmd, string input){
+	array<char, 128> buffer;
+	string result; // <- Aqui se campurara la salida del ejecutable
+	
+	unique_ptr<FILE, decltype(&pclose) >pipe(popen(input.c_str(), "r"), pclose);
+	
+	if(!pipe){
+		throw runtime_error("popen() failed");
+	}
+	while(fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr){
+		result += buffer.data();
+	}
+	return result;
 }
