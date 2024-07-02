@@ -70,10 +70,14 @@ void start(){
 	if(command == "pwd"){
 		exist = true;
 		builtin = true;
-		fs::path cwd = fs::current_path();
-		string cwd_str = cwd.string();
-		string print_cwd = cwd_str.substr(0, cwd_str.length());
-		cout<<print_cwd<<endl;
+		std::cout << std::filesystem::current_path().string() << std::endl;
+	}
+	if(command == "cd"){
+		exist = true;
+		builtin = true;
+		if ( std::filesystem::exists(arguments[1]) ){
+			std::filesystem::current_path(arguments[1]);
+		} else std::cout << arguments[1] << ": No such file or directory" << std::endl;
 	}
 	if(!builtin){
 		string direction = getEnvVairiable(command);
@@ -212,7 +216,7 @@ string getEnvVairiable(string envVarName){
 string handle_type_command(vector<string> arguments){
 	
 	string response = arguments[1]+": not found";
-	string builtinCommandsPrimitive[] = {"exit", "echo", "type", "pwd"};
+	string builtinCommandsPrimitive[] = {"exit", "echo", "type", "pwd", "cd"};
 	vector <string> builtinCommands(builtinCommandsPrimitive, builtinCommandsPrimitive + sizeof(builtinCommandsPrimitive) / sizeof(std::string));
 	
 	//Analizar si es un builtin command
