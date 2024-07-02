@@ -73,7 +73,7 @@ void start(){
 			exist = true;
 			string cmdPath = direction + "/" + command;
 			string result = exec(cmdPath, input);
-			cout<<result;
+			cout<<result<<endl;
 		}
 	}
 	//Comando no identificado
@@ -142,7 +142,7 @@ bool searchFile(string directory, string fileName){
         }
         //Itera los archivos
         for (const auto& entry : fs::directory_iterator(directory)) {
-            if (entry.path().filename() == fileName) {
+            if (entry.path().filename() == fileName+".exe") {
                 return true;
             }
         }
@@ -190,31 +190,6 @@ string getEnvVairiable(string envVarName){
     return result; 
 }
 
-string execEnvVariable(string envVarName){
-	//Almacenar direccion
-	string result = "";
-	// Obtener el valor de la variable de entorno PATH
-    string path_env = getenv("PATH");
-	//Direccion con ejecucion
-	string cmdPath;
-	
-	//Dividir el PATH por ; y guardar las direcciones en un vector
-    vector <string> paths = splitString(path_env, ';');
-	
-	bool found = false;
-	
-    for(int i = 0; i < paths.size(); i++){
-    	//cout<<paths[i]<<" -> "<<envVarName<<endl;
-        if(searchFile(paths[i], envVarName)) {
-            cmdPath = paths[i]+"/"+envVarName;
-            found = true;
-            break;
-        }
-    }
-    if(found){
-    	
-	}
-}
 
 //Ejecutar comando externo
 string exec(const string cmd, string input){
