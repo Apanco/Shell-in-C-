@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <sstream>
 #include <fstream> 
+#include <windows.h>
 namespace fs = std::filesystem;
 using namespace std;
 
@@ -25,7 +26,8 @@ string handle_type_command(vector<string> arguments);
 string getEnvVairiable(string envVarName);
 int stringToInt(string str);
 vector <string> splitString(string input, char delimiter);
-
+string getFilenameWithoutExtension(const std::string& filename);
+string getExecutablePath();
 int main() {
 	// Flush after every std::cout / std:cerr
 	cout << unitbuf; // Asegurar que cout no esté almacenado en búfer
@@ -38,7 +40,7 @@ int main() {
 
 void start(){
 	bool exist = false;
-	
+	bool builtin = false;
 	string input, command, code;
 	input = getCommand();
 	command = cleanCommand(input);
@@ -49,20 +51,34 @@ void start(){
 	//builtin commands
 	if(command == "exit"){
 		exist = true;
+		builtin = true;
 		int codeInt = stringToInt(code);
 		exit(codeInt);
 	}
 	if(command == "echo"){
 		exist = true;
+		builtin = true;
 		string str = getEcho(input, command);
 		cout<<str<<endl;
 	}
 	if(command == "type"){
 		exist = true;
+		builtin = true;
 		string response = handle_type_command(arguments);
 		cout<<response<<endl;
 	}
-	else{
+	if(command == "pwd"){
+		exist = true;
+		builtin = true;
+		//Direccion actual
+		fs::path currentPath = fs::current_path();
+		//Ruta completa
+		string programPath = getExecutablePath();
+		
+		//cout<<currentPath<<endl;
+		cout<<programPath<<endl;
+	}
+	if(!builtin){
 		string direction = getEnvVairiable(command);
 		if(direction != ""){
 			exist = true;
@@ -70,11 +86,6 @@ void start(){
 			string result = exec(cmdPath, input);
 			cout<<result<<endl;
 		}
-	}
-	if(0 == input.find("my_exe") ){
-		exist = true;
-		system(input.c_str());
-		
 	}
 	//Comando no identificado
 	if(!exist){
@@ -139,9 +150,15 @@ bool searchFile(string directory, string fileName){
             //std::cerr << "Directorio no existe: " << directory << std::endl;
             return false;
         }
+        //archivo sin extension
+        string baseFileName = getFilenameWithoutExtension(fileName);
+        
         //Itera los archivos
         for (const auto& entry : fs::directory_iterator(directory)) {
-            if (entry.path().filename() == fileName) {
+        	
+        	string entryFileName = entry.path().filename().string();//obtiene el nombre del archivo
+        	string entryBaseFileName = getFilenameWithoutExtension(entryFileName);// elimina la extension
+            if (entryBaseFileName == baseFileName) {//Los compara
                 return true;
             }
         }
@@ -222,7 +239,13 @@ string handle_type_command(vector<string> arguments){
 	
 	return response;
 }
-
+string getFilenameWithoutExtension(const std::string& filename) {
+    size_t last_dot = filename.find_last_of(".");
+    if (last_dot == std::string::npos) {
+        return filename; // No extension found
+    }
+    return filename.substr(0, last_dot);
+}
 
 //Ejecutar comando externo
 string exec(const string cmd, string input){
@@ -238,4 +261,10 @@ string exec(const string cmd, string input){
 		result += buffer.data();
 	}
 	return result;
+}
+
+string getExecutablePath(){
+	char path[MAX_PATH];
+	GetModuleFileNameA(NULL, path, MAX_PATH);
+    return string(path);
 }
