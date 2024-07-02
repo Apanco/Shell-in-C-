@@ -75,9 +75,17 @@ void start(){
 	if(command == "cd"){
 		exist = true;
 		builtin = true;
-		if ( std::filesystem::exists(arguments[1]) ){ // Verifica su validez
+		
+		if(arguments[1].compare("~") == 0){
+			const char* home = std::getenv("HOME");
+			std::filesystem::current_path(home);
+		}
+		
+		if ( std::filesystem::exists(arguments[1]) && !arguments[1].compare("~") == 0 ){ // Verifica su validez
 			std::filesystem::current_path(arguments[1]); //Cambia la direccion
-		} else std::cout << arguments[1] << ": No such file or directory" << std::endl; 
+		} else if( !std::filesystem::exists(arguments[1]) && !arguments[1].compare("~") == 0 ) {
+			std::cout << arguments[1] << ": No such file or directory" << std::endl; 
+		}
 	}
 	if(!builtin){
 		string direction = getEnvVairiable(command);
