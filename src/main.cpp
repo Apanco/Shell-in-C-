@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <sstream>
 #include <fstream> 
-#include <windows.h>
+
 namespace fs = std::filesystem;
 using namespace std;
 
@@ -70,13 +70,10 @@ void start(){
 	if(command == "pwd"){
 		exist = true;
 		builtin = true;
-		//Direccion actual
-		fs::path currentPath = fs::current_path();
-		//Ruta completa
-		string programPath = getExecutablePath();
-		
-		//cout<<currentPath<<endl;
-		cout<<programPath<<endl;
+		fs::path cwd = fs::current_path();
+		string cwd_str = cwd.string();
+		string print_cwd = cwd_str.substr(0, cwd_str.length());
+		cout<<print_cwd<<endl;
 	}
 	if(!builtin){
 		string direction = getEnvVairiable(command);
@@ -263,8 +260,3 @@ string exec(const string cmd, string input){
 	return result;
 }
 
-string getExecutablePath(){
-	char path[MAX_PATH];
-	GetModuleFileNameA(NULL, path, MAX_PATH);
-    return string(path);
-}
