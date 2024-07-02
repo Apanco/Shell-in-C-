@@ -75,9 +75,9 @@ void start(){
 	if(command == "cd"){
 		exist = true;
 		builtin = true;
-		if ( std::filesystem::exists(arguments[1]) ){
-			std::filesystem::current_path(arguments[1]);
-		} else std::cout << arguments[1] << ": No such file or directory" << std::endl;
+		if ( std::filesystem::exists(arguments[1]) ){ // Verifica su validez
+			std::filesystem::current_path(arguments[1]); //Cambia la direccion
+		} else std::cout << arguments[1] << ": No such file or directory" << std::endl; 
 	}
 	if(!builtin){
 		string direction = getEnvVairiable(command);
